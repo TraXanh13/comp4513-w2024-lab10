@@ -21,5 +21,17 @@ document.addEventListener("DOMContentLoaded", function() {
        use built-in Live Preview.
     */
 
-   
+   async function getPlayList(url) {
+      const res = await fetch(url);
+      const data = await res.json();
+      return data;
+   }
+
+   document.querySelector("#playList").addEventListener("change", async (e) => {
+      if(e.target.value != 0) {
+         let data = await getPlayList(`${url}?name=${e.target.value}`)
+
+         console.log(data)
+      }
+   })
 });
