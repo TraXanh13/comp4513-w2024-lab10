@@ -50,21 +50,49 @@ document.addEventListener("DOMContentLoaded", function() {
       play.displayPlay(e.target.previousElementSibling.value, e.target.value)
    })
 
-   function filterAct(speeches, textSearch){
-      let lines = document.querySelector("#lines");
-      lines.replaceChildren(lines, ...speeches);
+   function highlightSpeeches(speeches, highlight){
+      speeches.forEach(speech => {
+         let p = speech.querySelectorAll("p");
+         p.forEach((p) => {
+            let pCont = p.textContent;
+            let pos = pCont.toLowerCase().search(highlight.toLowerCase())
+            
+            if(pos >= 0) {
+               let firstHalf = pCont.substring(0, pos);
+               let secondHalf = pCont.substring(pos+highlight.length, pCont.length);
+               let b = document.createElement("b");
+               b.textContent = pCont.substring(pos, pos+highlight.length)
+
+               p.textContent = firstHalf;
+               p.append(b);
+               p.append(secondHalf);
+            }
+         })
+      }); 
    }
+
+   // TODO: have highlights removed when searching for something new
+   // TODO: be able to filter by auther/player
 
    document.querySelector("#btnHighlight").addEventListener("click", () => {
       const player = document.querySelector("#playerList").value;
       const highlight = document.querySelector("#txtHighlight").value;
+      const lines = document.querySelector("#lines");
       let speeches = Array.from(document.querySelectorAll(".speech"))
-
 
       if(player != 0) {
          speeches = speeches.filter((speech) => speech.querySelector("span").textContent === player)
+         console.log(speeches);
       }
 
-      filterAct(speeches, highlight)
+      if(highlight != ""){
+         speeches = highlightSpeeches(speeches, highlight);
+      }
+
+      
+      // console.log(lines)
+      // console.log(speeches)
+
+      // lines.replaceChildren(lines, speeches);
    })
 });
