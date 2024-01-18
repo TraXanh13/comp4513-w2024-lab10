@@ -2,12 +2,23 @@
 class Play {
     constructor(play){
         this.title = play.title;
-        this.personas = play.persona;
+        this.personas = play.persona.sort((a, b) => {
+            if(a.player < b.player)
+                return -1;
+            return 1;
+        });
         this.acts = [];
         
         play.acts.forEach(act => {
             this.acts.push(new Act(act))
         });
+    }
+
+    getAct(actName = "ACT I") {
+        return (this.acts.find(act => {
+            if(actName == act.name)
+               return true;
+         }))
     }
 
     populateActFilter() {
@@ -38,30 +49,6 @@ class Play {
             playerList.appendChild(option);
         });
     }
-
-    displayPlay(act = "ACT I", scene = "SCENE I") {
-        const currAct = this.acts.find((a) => {
-            if(a.name === act)
-                return true;
-        })
-
-        const playHere = document.querySelector("#playHere");
-        playHere.replaceChildren();
-        
-        let playTitle = document.createElement("h2");
-        playTitle.textContent = this.title;
-        
-        let actHere = document.createElement("article");
-        actHere.setAttribute("id", "actHere");
-        
-        let h3 = document.createElement("h3");
-        h3.textContent = currAct.name;
-        
-        playHere.appendChild(playTitle);
-        playHere.appendChild(actHere);
-        actHere.appendChild(h3);
-        actHere.appendChild(currAct.getSceneMarkup(scene));
-    }
 }
     
     class Act {
@@ -72,6 +59,13 @@ class Play {
             act.scenes.forEach(scene => {
                 this.scenes.push(new Scene(scene));
         })
+    }
+
+    getScene(sceneName = "SCENE I") {
+        return (this.scenes.find(scene => {
+            if(sceneName == scene.name)
+               return true;
+         }))
     }
     
     populateSceneFilter(){
@@ -85,35 +79,6 @@ class Play {
             sceneList.appendChild(option);
         });
     }
-
-    getSceneMarkup(scene) {
-        const currScene = this.scenes.find((s) => {
-            if(s.name === scene)
-                return true;
-        });
-
-        let sceneHere = document.createElement("div");
-        sceneHere.setAttribute("id", "sceneHere");
-
-        let h4 = document.createElement("h4");
-        h4.textContent = currScene.name;
-
-        let title = document.createElement("p");
-        title.setAttribute("class", "title");
-        title.textContent = currScene.title;
-
-        let direction = document.createElement("p");
-        direction.setAttribute("class", "direction");
-        direction.textContent = currScene.stageDirection;
-
-        sceneHere.appendChild(h4);
-        sceneHere.appendChild(title);
-        sceneHere.appendChild(direction);
-        
-        sceneHere.appendChild(currScene.getLinesMarkup());
-
-        return sceneHere;
-    }
 }
 
 class Scene {
@@ -122,29 +87,6 @@ class Scene {
         this.title = scene.title;
         this.stageDirection = scene.stageDirection;
         this.speeches = scene.speeches;
-    }
-
-    getLinesMarkup(){
-        const linesMarkup = document.createElement("div")
-        linesMarkup.setAttribute("id", "lines");
-        
-        this.speeches.forEach((speech) => {
-            let createdSpeech = document.createElement("div");
-            createdSpeech.setAttribute("class", "speech");
-            
-            let speaker = document.createElement("span");
-            speaker.textContent = speech.speaker;
-            
-            createdSpeech.appendChild(speaker);
-
-            speech.lines.forEach(l => {
-                let p = document.createElement("p");
-                p.textContent = l;
-                createdSpeech.appendChild(p);
-            })
-            linesMarkup.appendChild(createdSpeech)
-        })
-        return linesMarkup;
     }
 }
 

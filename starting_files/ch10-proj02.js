@@ -4,7 +4,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	
 	const url = 'https://www.randyconnolly.com//funwebdev/3rd/api/shakespeare/play.php';
-   let play;
+   
+   // Play object
+   var play;
 
    /*
       To get a specific play, add play name via query string, 
@@ -21,6 +23,89 @@ document.addEventListener("DOMContentLoaded", function() {
       use built-in Live Preview.
     */
 
+   function getCurrentScene() {
+      const currSceneName = document.querySelector("#sceneList").value;
+      return getCurrentAct().getScene(currSceneName);
+   }
+   
+   function getCurrentAct() {
+      const currActName = document.querySelector("#actList").value;
+      return play.getAct(currActName);
+      
+   }
+   
+   function makePlayContainer() {
+      const playHere = document.querySelector("#playHere");
+      playHere.replaceChildren();
+      
+      let h2 = document.createElement("h2");
+      h2.textContent = play.title;
+      
+      let actHere = document.createElement("article");
+      actHere.setAttribute("id", "actHere");
+
+      playHere.appendChild(h2);
+      playHere.appendChild(actHere);
+   }
+
+   function makeActContainer() {
+      const actHere = document.querySelector("#actHere");
+
+      actHere.replaceChildren();
+      
+      let h3 = document.createElement("h3");
+      h3.textContent = getCurrentAct().name;
+      
+      let sceneHere = document.createElement("div");
+      sceneHere.setAttribute("id", "sceneHere");
+      
+      actHere.appendChild(h3);
+      actHere.appendChild(sceneHere);
+   }
+   
+   function populateScene() {
+      const sceneHere = document.querySelector("#sceneHere");
+      
+      sceneHere.replaceChildren();
+
+      let h4 = document.createElement("h4");
+      h4.textContent = getCurrentScene().name;
+
+      let pTitle = document.createElement("p");
+      pTitle.setAttribute("class", "title");
+      pTitle.textContent = getCurrentScene().title;
+      
+      let pDir = document.createElement("p");
+      pDir.setAttribute("class", "direction");
+      pDir.textContent = getCurrentScene().stageDirection;
+
+      sceneHere.appendChild(h4);
+      sceneHere.appendChild(pTitle);
+      sceneHere.appendChild(pDir);
+
+      getCurrentScene().speeches.forEach(speech => {
+         sceneHere.appendChild(createSpeech(speech));
+      })
+   }
+
+   function createSpeech(speech) {
+      let speechDiv = document.createElement("div");
+      speechDiv.setAttribute("class", "speech");
+      
+      let span = document.createElement("span");
+      span.textContent = speech.speaker;
+
+      speechDiv.appendChild(span);
+
+      speech.lines.forEach((line) => {
+         let p = document.createElement("p");
+         p.textContent = line;
+         speechDiv.appendChild(p);
+      });
+      
+      return speechDiv;
+   }
+
    async function getPlayList(url) {
       const res = await fetch(url);
       const data = await res.json();
@@ -31,23 +116,22 @@ document.addEventListener("DOMContentLoaded", function() {
       if(e.target.value != 0) {
          play = new Play(await getPlayList(`${url}?name=${e.target.value}`));
          play.populateActFilter();
-         play.populatePersonaFilter()
-         play.displayPlay();
+         play.populatePersonaFilter();
+
+         makePlayContainer();
+         makeActContainer();
+         populateScene();
       }
    });
    
    document.querySelector("#actList").addEventListener("change", (e) => {
-      let act = play.acts.find((act) => {
-         if(act.name === e.target.value) 
-            return true;
-      })
-
-      act.populateSceneFilter();
-      play.displayPlay(e.target.value);
+      getCurrentAct().populateSceneFilter();
+      makeActContainer();
+      populateScene();
    });
-
+   
    document.querySelector("#sceneList").addEventListener("change", (e) => {
-      play.displayPlay(e.target.previousElementSibling.value, e.target.value)
+      populateScene();
    })
 
    function highlightSpeeches(speeches, highlight){
