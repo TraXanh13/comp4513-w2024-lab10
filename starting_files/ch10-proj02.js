@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
    /*
       Checks the selected scene and returns the equivalent Scene object
+
+      @returns the current Scene object
    */
   function getCurrentScene() {
      const currSceneName = document.querySelector("#sceneList").value;
@@ -29,6 +31,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
    /*
       Checks the selected act and returns the equivalent Act object
+
+      @returns the current Act object
    */
    function getCurrentAct() {
       const currActName = document.querySelector("#actList").value;
@@ -51,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
       playHere.appendChild(h2);
       playHere.appendChild(actHere);
+      makeActContainer();
    }
    
    /*
@@ -74,8 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
    
    /*
       Populates the scene information within the 
-      #sceneHere container
-   */
+      #sceneHere container   */
    function populateScene(filteredPerson = 0, highlight="") {
       const sceneHere = document.querySelector("#sceneHere");
       
@@ -102,6 +106,14 @@ document.addEventListener("DOMContentLoaded", function() {
       })
    }
 
+   /*
+      Creates a speech div with populated text and speaker
+
+      @param {object} speech: the list of lines for the current speaker
+      @param {string} highlight: the text that will be highlighted in yellow
+      @return {object}  The speechDiv to be appended to #sceneHere
+
+   */
    function createSpeech(speech, highlight) {
       let speechDiv = document.createElement("div");
       speechDiv.setAttribute("class", "speech");
@@ -115,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
          p.textContent = l;
          
          if(highlight) {
+            p.textContent = "";
             let highlights = [...l.toLowerCase().matchAll(highlight.toLowerCase())]
             let pos = 0;
             
@@ -141,12 +154,21 @@ document.addEventListener("DOMContentLoaded", function() {
       return speechDiv;
    }
 
+   /*
+      Fetch the current play
+
+      @param {string} url: the link to the plays api
+      @return {object}  the data from the fetch
+   */
    async function getPlayList(url) {
       const res = await fetch(url);
       const data = await res.json();
       return data;
    }
    
+   /*
+      Listens for a play to be slected and populates the filters and scene
+   */
    document.querySelector("#playList").addEventListener("change", async (e) => {
       if(e.target.value != 0) {
          play = new Play(await getPlayList(`${url}?name=${e.target.value}`));
@@ -154,23 +176,30 @@ document.addEventListener("DOMContentLoaded", function() {
          play.populatePersonaFilter();
 
          makePlayContainer();
-         makeActContainer();
          populateScene();
       }
    });
    
-   document.querySelector("#actList").addEventListener("change", (e) => {
+   /*
+      Listens for an act to be selected and populates the new scene filter and scene
+   */
+   document.querySelector("#actList").addEventListener("change", () => {
       getCurrentAct().populateSceneFilter();
       makeActContainer();
       populateScene();
    });
    
-   document.querySelector("#sceneList").addEventListener("change", (e) => {
+   /*
+      Listens for a scene change and populates the script
+   */
+   document.querySelector("#sceneList").addEventListener("change", () => {
       populateScene();
    })
 
-   // TODO: have highlights removed when searching for something new
-
+   /*
+      Listens for the "filter" button click and filters the current scene by
+      the user selected and highlights the search terms
+   */
    document.querySelector("#btnHighlight").addEventListener("click", () => {
       const player = document.querySelector("#playerList").value;
       const highlight = document.querySelector("#txtHighlight").value;

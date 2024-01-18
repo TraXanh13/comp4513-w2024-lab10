@@ -14,34 +14,46 @@ class Play {
         });
     }
 
+    /*
+        Gets the current Act object based off of the string
+        
+        @param {string} actName: the current act being searched for
+        @return {object} the Act object
+    */
     getAct(actName = "ACT I") {
         return (this.acts.find(act => {
             if(actName == act.name)
-               return true;
-         }))
+            return true;
+        }))
     }
 
+    /*
+        Populates all of the Act into the filter
+    */
     populateActFilter() {
         const actList = document.querySelector("#actList");
         actList.replaceChildren();
         
         this.acts.forEach(act => {
             let option = document.createElement("option");
-            option.textContent = act.name;
-            option.value = act.name;
-            actList.appendChild(option);
+                option.textContent = act.name;
+                option.value = act.name;
+                actList.appendChild(option);
         });
-
-        this.acts[0].populateSceneFilter();
+            
+            this.acts[0].populateSceneFilter();
     }
-
+    
+    /*
+        Populates all of the Actors into the filter
+    */
     populatePersonaFilter() {
         const playerList = document.querySelector("#playerList");
         let playerListPlaceholder = playerList.firstElementChild;
-
+        
         playerList.replaceChildren();
         playerList.appendChild(playerListPlaceholder);
-
+        
         this.personas.forEach(persona => {
             let option = document.createElement("option");
             option.textContent = persona.player;
@@ -50,17 +62,23 @@ class Play {
         });
     }
 }
-    
-    class Act {
-        constructor(act){
-            this.name = act.name;
-            this.scenes = [];
-            
-            act.scenes.forEach(scene => {
-                this.scenes.push(new Scene(scene));
+
+class Act {
+    constructor(act){
+        this.name = act.name;
+        this.scenes = [];
+        
+        act.scenes.forEach(scene => {
+            this.scenes.push(new Scene(scene));
         })
     }
-
+    
+    /*
+        Gets the current Scene object based off of the string
+    
+        @param {string} sceneName: the current act being searched for
+        @return {object} the Scene object
+    */
     getScene(sceneName = "SCENE I") {
         return (this.scenes.find(scene => {
             if(sceneName == scene.name)
@@ -68,6 +86,9 @@ class Play {
         }));
     }
     
+    /*
+        Populates all of the Scenes into the filter
+    */
     populateSceneFilter(){
         const sceneList = document.querySelector("#sceneList");
         sceneList.replaceChildren();
