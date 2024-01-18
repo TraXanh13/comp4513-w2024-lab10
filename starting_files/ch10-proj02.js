@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
       Populates the scene information within the 
       #sceneHere container
    */
-   function populateScene() {
+   function populateScene(filteredPerson = 0, highlight="") {
       const sceneHere = document.querySelector("#sceneHere");
       
       sceneHere.replaceChildren();
@@ -97,11 +97,12 @@ document.addEventListener("DOMContentLoaded", function() {
       sceneHere.appendChild(pDir);
 
       getCurrentScene().speeches.forEach(speech => {
-         sceneHere.appendChild(createSpeech(speech));
+         if(filteredPerson == 0 || filteredPerson == speech.speaker)
+            sceneHere.appendChild(createSpeech(speech, highlight));
       })
    }
 
-   function createSpeech(speech) {
+   function createSpeech(speech, highlight) {
       let speechDiv = document.createElement("div");
       speechDiv.setAttribute("class", "speech");
       
@@ -109,9 +110,26 @@ document.addEventListener("DOMContentLoaded", function() {
       span.textContent = speech.speaker;
       speechDiv.appendChild(span);
       
-      speech.lines.forEach((line) => {
+      speech.lines.forEach((l) => {
          let p = document.createElement("p");
-         p.textContent = line;
+         p.textContent = l;
+         
+         if(highlight) {
+            let highlights = [...l.toLowerCase().matchAll(highlight.toLowerCase())]
+            let pos = 0;
+            
+            for(let i = 0; i < highlights.length; i++){
+               let line = document.createTextNode(l.substring(pos, highlights[i].index))
+               let b = document.createElement("b");
+               b.textContent = highlight;
+   
+               pos = highlights[i].index + highlight.length;
+   
+               p.appendChild(line);
+               p.appendChild(b);
+            }
+            p.appendChild(document.createTextNode(l.substring(pos)));
+         }
          speechDiv.appendChild(p);
       });
       
@@ -151,39 +169,11 @@ document.addEventListener("DOMContentLoaded", function() {
       populateScene();
    })
 
-   function highlightSpeeches(speeches, highlight){
-      speeches.forEach(speech => {
-         let p = speech.querySelectorAll("p");
-         p.forEach((p) => {
-            let pCont = p.textContent;
-            let pos = pCont.toLowerCase().search(highlight.toLowerCase())
-            
-            if(pos >= 0) {
-               let firstHalf = pCont.substring(0, pos);
-               let secondHalf = pCont.substring(pos+highlight.length, pCont.length);
-               let b = document.createElement("b");
-               b.textContent = pCont.substring(pos, pos+highlight.length)
-
-               p.textContent = firstHalf;
-               p.append(b);
-               p.append(secondHalf);
-            }
-         })
-      }); 
-   }
-
-   function personaFilter(player) {
-      let speeches = document.querySelectorAll(".speech");
-      console.log(player + speeches)
-   }
-
    // TODO: have highlights removed when searching for something new
-   // TODO: be able to filter by auther/player
 
    document.querySelector("#btnHighlight").addEventListener("click", () => {
       const player = document.querySelector("#playerList").value;
-      const highlight = document.querySelector("#txtHighlight").value;     
-      personaFilter(player)
-      console.log(highlight)
+      const highlight = document.querySelector("#txtHighlight").value;
+      populateScene(player, highlight)
    })
 });
