@@ -64,8 +64,8 @@ class Play {
     getScene(sceneName = "SCENE I") {
         return (this.scenes.find(scene => {
             if(sceneName == scene.name)
-               return true;
-         }))
+                return true;
+        }));
     }
     
     populateSceneFilter(){

@@ -1,39 +1,44 @@
 import Play from "./play-module.js";
 
 document.addEventListener("DOMContentLoaded", function() {
-
-	
-	const url = 'https://www.randyconnolly.com//funwebdev/3rd/api/shakespeare/play.php';
-   
-   // Play object
-   var play;
-
    /*
       To get a specific play, add play name via query string, 
       e.g., url = url + '?name=hamlet';
       
       https://www.randyconnolly.com/funwebdev/3rd/api/shakespeare/play.php?name=hamlet
       https://www.randyconnolly.com/funwebdev/3rd/api/shakespeare/play.php?name=jcaesar
-   */
-	
-   
-   /* note: you may get a CORS error if you test this locally (i.e., directly from a
+
+      note: you may get a CORS error if you test this locally (i.e., directly from a
       local file). To work correctly, this needs to be tested on a local web server.  
       Some possibilities: if using Visual Code, use Live Server extension; if Brackets,
       use built-in Live Preview.
     */
-
-   function getCurrentScene() {
-      const currSceneName = document.querySelector("#sceneList").value;
-      return getCurrentAct().getScene(currSceneName);
-   }
+	const url = 'https://www.randyconnolly.com//funwebdev/3rd/api/shakespeare/play.php';
    
+   // Play object
+   var play;
+
+
+   /*
+      Checks the selected scene and returns the equivalent Scene object
+   */
+  function getCurrentScene() {
+     const currSceneName = document.querySelector("#sceneList").value;
+     return getCurrentAct().getScene(currSceneName);
+   }
+
+   /*
+      Checks the selected act and returns the equivalent Act object
+   */
    function getCurrentAct() {
       const currActName = document.querySelector("#actList").value;
       return play.getAct(currActName);
-      
    }
    
+   /*
+      Creates the div container and immediate children within 
+      the #playHere section
+   */
    function makePlayContainer() {
       const playHere = document.querySelector("#playHere");
       playHere.replaceChildren();
@@ -47,7 +52,11 @@ document.addEventListener("DOMContentLoaded", function() {
       playHere.appendChild(h2);
       playHere.appendChild(actHere);
    }
-
+   
+   /*
+      Creates the div container and immediate children within 
+      the #actHere section
+   */
    function makeActContainer() {
       const actHere = document.querySelector("#actHere");
 
@@ -63,6 +72,10 @@ document.addEventListener("DOMContentLoaded", function() {
       actHere.appendChild(sceneHere);
    }
    
+   /*
+      Populates the scene information within the 
+      #sceneHere container
+   */
    function populateScene() {
       const sceneHere = document.querySelector("#sceneHere");
       
@@ -94,14 +107,18 @@ document.addEventListener("DOMContentLoaded", function() {
       
       let span = document.createElement("span");
       span.textContent = speech.speaker;
-
       speechDiv.appendChild(span);
-
+      
       speech.lines.forEach((line) => {
          let p = document.createElement("p");
          p.textContent = line;
          speechDiv.appendChild(p);
       });
+      
+      let em = document.createElement("em");
+      em.textContent = speech.stagedir;
+      speechDiv.appendChild(em);
+
       
       return speechDiv;
    }
@@ -155,28 +172,18 @@ document.addEventListener("DOMContentLoaded", function() {
       }); 
    }
 
+   function personaFilter(player) {
+      let speeches = document.querySelectorAll(".speech");
+      console.log(player + speeches)
+   }
+
    // TODO: have highlights removed when searching for something new
    // TODO: be able to filter by auther/player
 
    document.querySelector("#btnHighlight").addEventListener("click", () => {
       const player = document.querySelector("#playerList").value;
-      const highlight = document.querySelector("#txtHighlight").value;
-      const lines = document.querySelector("#lines");
-      let speeches = Array.from(document.querySelectorAll(".speech"))
-
-      if(player != 0) {
-         speeches = speeches.filter((speech) => speech.querySelector("span").textContent === player)
-         console.log(speeches);
-      }
-
-      if(highlight != ""){
-         speeches = highlightSpeeches(speeches, highlight);
-      }
-
-      
-      // console.log(lines)
-      // console.log(speeches)
-
-      // lines.replaceChildren(lines, speeches);
+      const highlight = document.querySelector("#txtHighlight").value;     
+      personaFilter(player)
+      console.log(highlight)
    })
 });
